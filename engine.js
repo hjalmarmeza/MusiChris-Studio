@@ -8,7 +8,7 @@ const path = require('path');
 const fs = require('fs');
 
 async function main() {
-    console.log('🤖 --- MUSITUBE AUTOMATOR: PILOTO AUTOMÁTICO ---');
+    console.log('🤖 --- MUSICHRIS STUDIO: PILOTO AUTOMÁTICO ---');
 
     try {
         // 1. Obtener canciones
@@ -21,7 +21,7 @@ async function main() {
 
         if (pendingSongs.length === 0) {
             console.log('✅ No hay canciones pendientes por procesar. ¡Todo al día!');
-            await sendNotification('✅ *MusiTube Automator*: Todo al día en el Sheet.');
+            await sendNotification('✅ *MusiChris Studio*: Todo al día en el Sheet.');
             return;
         }
 
@@ -45,7 +45,7 @@ async function main() {
         const youtubeId = await uploadToYouTube(outputPath, nextSong);
 
                 // 6. Notificar
-                await sendNotification(`🚀 *¡Nueva subida! *\n\n🎵 Canción: ${nextSong.trackTitle}\n💿 Álbum: ${nextSong.albumName}\n🔗 ID YouTube: ${youtubeId}`);
+                await sendNotification(`🎵 *MusiChris Studio* 🚀\n\n*¡Nueva subida! *\n\n🎵 Canción: ${nextSong.trackTitle}\n💿 Álbum: ${nextSong.albumName}\n🔗 ID YouTube: ${youtubeId}`);
 
                 // 7. Actualizar el Sheet (NUEVO: Reporte de éxito)
                 if (process.env.APPS_SCRIPT_URL) {
