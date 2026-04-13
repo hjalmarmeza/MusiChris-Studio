@@ -3,35 +3,36 @@ const fs = require('fs');
 const path = require('path');
 
 /**
- * Servicio Real de YouTube v3
+ * Servicio Real de YouTube v3 - Optimizado para GitHub Secrets
  */
 async function uploadToYouTube(videoPath, songData) {
     console.log(`🚀 Preparando subida REAL a YouTube: ${songData.trackTitle}...`);
     
-    const credentialsPath = path.join(process.cwd(), 'credentials.json');
-    const tokenPath = path.join(process.cwd(), 'token.json');
-
-    if (!fs.existsSync(credentialsPath)) {
-        console.warn('⚠️ No se encontró credentials.json. Simulación activa.');
-        return 'SIMULATED_ID';
+    // 1. Obtener Credenciales (Prioridad: Secretos de Entorno > Archivo Local)
+    let credentials;
+    if (process.env.YOUTUBE_CREDENTIALS_JSON) {
+        credentials = JSON.parse(process.env.YOUTUBE_CREDENTIALS_JSON);
+    } else if (fs.existsSync('credentials.json')) {
+        credentials = JSON.parse(fs.readFileSync('credentials.json'));
+    } else {
+        console.warn('⚠️ No se encontraron credenciales. Simulación activa.');
+        return 'SIMULATED_ID_' + Date.now();
     }
 
-    const credentials = JSON.parse(fs.readFileSync(credentialsPath));
     const { client_secret, client_id, redirect_uris } = credentials.installed || credentials.web;
     const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
 
-    // En GitHub Actions, el token vendrá de una variable de entorno
+    // 2. Obtener Token (Prioridad: Secretos de Entorno > Archivo Local)
     let token;
     if (process.env.YOUTUBE_TOKEN_JSON) {
         token = JSON.parse(process.env.YOUTUBE_TOKEN_JSON);
-    } else if (fs.existsSync(tokenPath)) {
-        token = JSON.parse(fs.readFileSync(tokenPath));
+    } else if (fs.existsSync('token.json')) {
+        token = JSON.parse(fs.readFileSync('token.json'));
     } else {
-        throw new Error('❌ No se encontró token de acceso (token.json o secreto YOUTUBE_TOKEN_JSON).');
+        throw new Error('❌ No se encontró token de acceso (YOUTUBE_TOKEN_JSON).');
     }
 
     oAuth2Client.setCredentials(token);
-
     const youtube = google.youtube({ version: 'v3', auth: oAuth2Client });
 
     try {
@@ -40,12 +41,12 @@ async function uploadToYouTube(videoPath, songData) {
             requestBody: {
                 snippet: {
                     title: `${songData.trackTitle} - ${songData.albumName}`,
-                    description: `Escucha "${songData.trackTitle}" del álbum "${songData.albumName}".\n\nGenerado automáticamente por MusiTube Automator.`,
-                    tags: [songData.albumName, 'MusiTube', 'Music'],
-                    categoryId: '10', // Música
+                    description: `Escucha "${songData.trackTitle}" del álbum "${songData.albumName}".\n\nGenerado de forma automática por MusiTube Automator.`,
+                    tags: [songData.albumName, 'Música', 'MusiTube'],
+                    categoryId: '10',
                 },
                 status: {
-                    privacyStatus: 'public', // Puedes cambiarlo a 'unlisted' para pruebas
+                    privacyStatus: 'public',
                     selfDeclaredMadeForKids: false,
                 },
             },
@@ -54,7 +55,7 @@ async function uploadToYouTube(videoPath, songData) {
             },
         });
 
-        console.log(`✅ ¡Video subido con éxito! ID: ${res.data.id}`);
+        console.log(`✅ ¡SUBIDA REAL EXITOSA! ID: ${res.data.id}`);
         return res.data.id;
     } catch (error) {
         console.error('❌ Error en YouTube Upload API:', error.message);
