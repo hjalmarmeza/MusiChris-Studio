@@ -47,9 +47,21 @@ async function main() {
                 // 6. Notificar
                 await sendNotification(`🚀 *¡Nueva subida! *\n\n🎵 Canción: ${nextSong.trackTitle}\n💿 Álbum: ${nextSong.albumName}\n🔗 ID YouTube: ${youtubeId}`);
 
-                // Limpieza de archivos temporales
-                if (fs.existsSync(image)) fs.unlinkSync(image);
-                if (fs.existsSync(audio)) fs.unlinkSync(audio);
+                // 7. Actualizar el Sheet (NUEVO: Reporte de éxito)
+                if (process.env.APPS_SCRIPT_URL) {
+                    console.log(`📊 Reportando éxito al Sheet para: ${nextSong.trackTitle}...`);
+                    await fetch(process.env.APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            action: 'update_status',
+                            data: { 
+                                trackTitle: nextSong.trackTitle, 
+                                newStatus: 'Done',
+                                youtubeId: youtubeId 
+                            }
+                        })
+                    });
+                }
                 
                 console.log(`✨ Completado con éxito: ${nextSong.trackTitle}`);
             } catch (err) {
