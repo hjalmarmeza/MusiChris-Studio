@@ -1,0 +1,7 @@
+node_modules/
+assets/temp/*
+!assets/temp/.gitkeep
+.env
+credentials.json
+token.json
+.DS_Store

@@ -1,0 +1,16 @@
+{
+  "name": "musitube-automator",
+  "version": "1.0.0",
+  "description": "Motor de automatización para MusiTube: FFmpeg + YouTube API + Google Sheets",
+  "main": "engine.js",
+  "scripts": {
+    "start": "node engine.js",
+    "test-render": "node tests/test-ffmpeg.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.1",
+    "fluent-ffmpeg": "^2.1.2",
+    "googleapis": "^133.0.0",
+    "node-fetch": "^2.7.0"
+  }
+}

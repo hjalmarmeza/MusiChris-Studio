@@ -1,0 +1,32 @@
+name: MusiTube Autopilot
+
+on:
+  schedule:
+    - cron: '0 14 * * *' # Se ejecuta todos los días a las 14:00 UTC
+  workflow_dispatch: # Permite ejecución manual
+
+jobs:
+  auto-process:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 🎞️ Setup FFmpeg
+        uses: FedericoCarboni/setup-ffmpeg@v3
+
+      - name: 📦 Install Dependencies
+        run: npm install
+
+      - name: 🚀 Run MusiTube Engine
+        run: node engine.js
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          GOOGLE_SHEET_CSV_URL: ${{ secrets.GOOGLE_SHEET_CSV_URL }}
+          # Las credenciales de YouTube se manejarán mediante file creation desde secretos si el usuario lo desea
