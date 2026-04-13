@@ -1,7 +1,7 @@
 const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6JklsOia4HVvuB3b81unFfUWKv79KXUmBQq7JsIUqK6XZPgpTrgArqpSs80rWMN4SEwtVUuYGDMNs/pub?gid=1882591302&single=true&output=csv';
 
-// REEMPLAZAR con la URL que te dé Google Apps Script
-const APPS_SCRIPT_URL = ''; 
+// URL de Google Apps Script (Puente MusiTube)
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw_nQ5bfK8gPXHUXaHU6U9ThkAGV20nxzV89YouO5aQ6vfxBYjUKzqiinR_pQ-32ozY6w/exec'; 
 
 let albumsData = {};
 
@@ -14,7 +14,7 @@ async function loadLibrary() {
         const csvText = await response.text();
         const rows = csvText.split('\n').map(row => row.split(','));
         
-        albumsData = {}; // Reiniciar
+        albumsData = {}; 
 
         rows.forEach((row, index) => {
             if (index === 0) return;
@@ -36,7 +36,6 @@ async function loadLibrary() {
                 status: status?.trim() || 'Pending'
             });
 
-            // Si alguna canción del álbum está en proceso o terminada, afecta al álbum
             if (status?.trim() === 'Done') albumsData[albumName].status = 'Done';
             if (status?.trim() === 'Processing') albumsData[albumName].status = 'Processing';
         });
@@ -48,7 +47,7 @@ async function loadLibrary() {
 }
 
 /**
- * 2. Renderizar con Estética Premium y Colores de Estado
+ * 2. Renderizar Dashboard
  */
 function renderAlbums() {
     const grid = document.getElementById('album-grid');
@@ -60,7 +59,6 @@ function renderAlbums() {
         
         let statusBadge = '';
         let btnText = 'Subir a YouTube';
-        let btnClass = 'auth-btn';
         let btnDisabled = '';
 
         if (album.status === 'Done') {
@@ -81,7 +79,7 @@ function renderAlbums() {
             <img src="${album.art}" class="album-art" alt="${album.name}">
             <div class="album-info">
                 <h3>${album.name}</h3>
-                <button class="${btnClass}" ${btnDisabled} onclick="syncAlbum('${album.name}')">${btnText}</button>
+                <button class="auth-btn" ${btnDisabled} onclick="syncAlbum('${album.name}')">${btnText}</button>
             </div>
         `;
         grid.appendChild(card);
@@ -89,27 +87,38 @@ function renderAlbums() {
 }
 
 /**
- * 3. Lógica de Sincronización y Control de Colas
+ * 3. Enviar orden de sincronización al Sheet
  */
 async function syncAlbum(albumName) {
     const album = albumsData[albumName];
     
-    // Verificación de cola
     const currentlyProcessing = Object.values(albumsData).find(a => a.status === 'Processing');
-    
     if (currentlyProcessing) {
-        alert(`⚠️ ATENCIÓN: El álbum "${currentlyProcessing.name}" ya está en cola.\n\n"${album.name}" se procesará automáticamente en el siguiente ciclo.`);
+        alert(`⚠️ COLA OCUPADA: El álbum "${currentlyProcessing.name}" ya está procesándose. Espera a que termine.`);
         return;
     }
 
-    if (!APPS_SCRIPT_URL) {
-        alert("🚀 ¡Modo Simulación! Para activación real, pega la URL de Apps Script en main.js");
-        return;
-    }
+    if (!confirm(`¿Deseas poner el álbum "${albumName}" en la cola de subida?`)) return;
 
-    // Aquí llamaríamos al Apps Script para cambiar el status en el Sheet
-    console.log(`Cambiando estado a 'Processing' para el álbum: ${albumName}`);
-    // fetch(APPS_SCRIPT_URL, { ... });
+    try {
+        // Enviar orden para cada track (marcar como Pending para que el engine lo agarre)
+        for (const track of album.tracks) {
+            await fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors', // Apps Script requiere no-cors o redirección
+                body: JSON.stringify({
+                    action: 'update_status',
+                    data: { trackTitle: track.title, newStatus: 'Pending' }
+                })
+            });
+        }
+        
+        alert(`🚀 "${albumName}" puesto en cola exitosamente. En unos momentos el Autopilot lo detectará.`);
+        loadLibrary();
+    } catch (error) {
+        console.error("Fallo al contactar con el puente:", error);
+        alert("❌ Error al conectar con el Sheet. Revisa la consola.");
+    }
 }
 
 window.onload = loadLibrary;
