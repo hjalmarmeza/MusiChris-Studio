@@ -136,7 +136,7 @@ async function runAutopilotNow() {
     btn.innerHTML = '⚙️';
     
     try {
-        const response = await fetch('/api/trigger', { method: 'POST' });
+        const response = await fetch('https://telegram-bot-tau-seven.vercel.app/api/trigger', { method: 'POST' });
         
         if (response.ok) {
             alert('✅ ¡MusiChris Studio Engine arrancado! Revisa Telegram en unos minutos.');
