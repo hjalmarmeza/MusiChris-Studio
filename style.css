@@ -85,9 +85,42 @@ body {
     font-weight: 800;
     letter-spacing: 1.5px;
     border: 1px solid rgba(239, 68, 68, 0.3);
-    margin-bottom: 20px;
+    margin-bottom: 0; /* Updated for flex container */
     animation: glow 2.5s infinite alternate;
 }
+
+.mini-btn-trigger {
+    background: rgba(251, 191, 36, 0.15);
+    color: var(--accent);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.mini-btn-trigger:hover {
+    background: rgba(251, 191, 36, 0.3);
+    transform: scale(1.1);
+}
+
+.mini-btn-trigger:active {
+    transform: scale(0.95);
+}
+
+.mini-btn-trigger.loading {
+    animation: spin 1s infinite linear;
+    cursor: not-allowed;
+    filter: grayscale(1);
+}
+
+@keyframes spin { 100% { transform: rotate(360deg); } }
 
 @keyframes glow {
     from { box-shadow: 0 0 5px rgba(239, 68, 68, 0.2); }

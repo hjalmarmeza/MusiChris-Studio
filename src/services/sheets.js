@@ -70,7 +70,7 @@ async function getSongsFromSheet() {
  * @param {string} trackTitle - Título de la canción a actualizar.
  * @param {string} newStatus  - Nuevo estado (ej: 'Done').
  */
-async function updateSongStatus(trackTitle, newStatus) {
+async function updateSongStatus(trackTitle, newStatus, youtubeId = '', playlistId = '') {
     if (!process.env.APPS_SCRIPT_URL) {
         console.warn('⚠️ APPS_SCRIPT_URL no configurada. No se actualizará el Sheet.');
         return;
@@ -79,7 +79,10 @@ async function updateSongStatus(trackTitle, newStatus) {
         const response = await fetch(process.env.APPS_SCRIPT_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'update_status', data: { trackTitle, newStatus } })
+            body: JSON.stringify({ 
+                action: 'update_status', 
+                data: { trackTitle, newStatus, youtubeId, playlistId } 
+            })
         });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         console.log(`📊 Sheet actualizado: "${trackTitle}" → ${newStatus}`);

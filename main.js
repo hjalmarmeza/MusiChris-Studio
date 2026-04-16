@@ -121,4 +121,38 @@ async function syncAlbum(albumName) {
     }
 }
 
+/**
+ * 4. Disparar Autopilot Manualmente (Vercel API)
+ */
+async function runAutopilotNow() {
+    const btn = document.getElementById('trigger-btn');
+    if (btn.classList.contains('loading')) return;
+
+    if (!confirm('🚀 ¿Quieres forzar la ejecución del Motor (Autopilot) ahora mismo?')) {
+        return;
+    }
+
+    btn.classList.add('loading');
+    btn.innerHTML = '⚙️';
+    
+    try {
+        const response = await fetch('/api/trigger', { method: 'POST' });
+        
+        if (response.ok) {
+            alert('✅ ¡MusiChris Studio Engine arrancado! Revisa Telegram en unos minutos.');
+        } else {
+            const data = await response.json();
+            alert(`⚠️ Error: ${data.message || 'No se pudo iniciar'}`);
+        }
+    } catch (error) {
+        console.error('Error al disparar el workflow:', error);
+        alert('❌ Error de red al intentar disparar el Engine.');
+    } finally {
+        setTimeout(() => {
+            btn.classList.remove('loading');
+            btn.innerHTML = '🚀';
+        }, 3000); // Dar un respiro a la UI
+    }
+}
+
 window.onload = loadLibrary;

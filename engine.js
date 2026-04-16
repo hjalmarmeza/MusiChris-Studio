@@ -52,7 +52,7 @@ async function main() {
                 const { videoId, playlistId } = await uploadToYouTube(outputVideo, song);
 
                 // 4. Actualizar estado en el Sheet
-                await updateSongStatus(song.key || song.trackTitle, 'Done');
+                await updateSongStatus(song.key || song.trackTitle, 'Done', videoId, playlistId);
 
                 // 5. Notificar éxito individual
                 await sendNotification(
