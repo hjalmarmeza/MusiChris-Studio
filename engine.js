@@ -11,6 +11,10 @@ const { uploadToYouTube, renderVideo }          = require('./src/services/youtub
 const { sendNotification }                      = require('./src/services/telegram');
 const intelligence                              = require('./src/services/intelligence');
 const path                                     = require('path');
+const fs                                       = require('fs');
+
+// Garantizar que la carpeta temp existe (no se sube a Git pero es necesaria)
+fs.mkdirSync(path.join(__dirname, 'assets/temp'), { recursive: true });
 
 const VERSION = '3.0.0 "Majestic"';
 const BATCH_SIZE = 5; // Límite diario por cuota de YouTube
