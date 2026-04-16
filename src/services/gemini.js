@@ -35,13 +35,22 @@ Responde SOLO con la descripción, sin introducción ni explicación.`;
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                body: JSON.stringify({ 
+                    contents: [{ parts: [{ text: prompt }] }],
+                    safetySettings: [
+                        { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+                        { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+                        { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+                        { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
+                    ]
+                })
             }
         );
         const data = await response.json();
         if (data.candidates && data.candidates[0]) {
             return data.candidates[0].content.parts[0].text;
         }
+        console.error('⚠️ Gemini API Response (Description):', JSON.stringify(data, null, 2));
         throw new Error('Gemini no devolvió candidatos.');
     } catch (err) {
         console.error('❌ Error generando descripción con Gemini:', err.message);
@@ -70,7 +79,15 @@ Ejemplo: Música Cristiana, Alabanza, Fe, Esperanza, Adoración, Salvación, Gos
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                body: JSON.stringify({ 
+                    contents: [{ parts: [{ text: prompt }] }],
+                    safetySettings: [
+                        { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+                        { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+                        { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+                        { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
+                    ]
+                })
             }
         );
         const data = await response.json();
@@ -78,6 +95,7 @@ Ejemplo: Música Cristiana, Alabanza, Fe, Esperanza, Adoración, Salvación, Gos
             const raw = data.candidates[0].content.parts[0].text;
             return raw.split(',').map(t => t.trim()).slice(0, 10);
         }
+        console.error('⚠️ Gemini API Response (Tags):', JSON.stringify(data, null, 2));
         throw new Error('Sin candidatos.');
     } catch (err) {
         console.error('❌ Error generando tags:', err.message);
