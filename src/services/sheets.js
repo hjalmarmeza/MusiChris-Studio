@@ -65,4 +65,28 @@ async function getSongsFromSheet() {
     }
 }
 
-module.exports = { getSongsFromSheet };
+/**
+ * Actualiza el estado de una canción en el Google Sheet via Apps Script.
+ * @param {string} trackTitle - Título de la canción a actualizar.
+ * @param {string} newStatus  - Nuevo estado (ej: 'Done').
+ */
+async function updateSongStatus(trackTitle, newStatus) {
+    if (!process.env.APPS_SCRIPT_URL) {
+        console.warn('⚠️ APPS_SCRIPT_URL no configurada. No se actualizará el Sheet.');
+        return;
+    }
+    try {
+        const response = await fetch(process.env.APPS_SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'update_status', data: { trackTitle, newStatus } })
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        console.log(`📊 Sheet actualizado: "${trackTitle}" → ${newStatus}`);
+    } catch (err) {
+        console.warn(`⚠️ No se pudo actualizar el Sheet: ${err.message}`);
+        // No es crítico — el video ya se subió. Solo logueamos y continuamos.
+    }
+}
+
+module.exports = { getSongsFromSheet, updateSongStatus };
