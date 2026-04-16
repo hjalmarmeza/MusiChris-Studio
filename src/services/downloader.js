@@ -37,7 +37,23 @@ async function prepareAssets(song) {
         downloadFile(song.trackUrl, audioPath)
     ]);
 
-    return { image: imagePath, audio: audioPath };
+    return { image: imagePath, audio: audioPath, tempPaths: [imagePath, audioPath] };
 }
 
-module.exports = { prepareAssets };
+/**
+ * Elimina archivos temporales tras cada iteración para mantener el servidor limpio.
+ * @param {string[]} filePaths - Lista de rutas a eliminar.
+ */
+function cleanupTempFiles(filePaths = []) {
+    for (const filePath of filePaths) {
+        try {
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            }
+        } catch (e) {
+            console.warn(`⚠️ No se pudo borrar: ${filePath}`);
+        }
+    }
+}
+
+module.exports = { prepareAssets, cleanupTempFiles };
