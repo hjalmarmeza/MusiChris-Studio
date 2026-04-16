@@ -5,10 +5,11 @@ const fetch = require('node-fetch');
 const ffmpeg = require('fluent-ffmpeg');
 const { generateDescription, generateTags } = require('./gemini');
 
-// Apunta FFmpeg al binario de Homebrew en macOS/Linux
-if (process.platform === 'darwin') {
+// Apunta FFmpeg al binario correcto según el sistema operativo
+if (process.platform === 'darwin' && require('fs').existsSync('/opt/homebrew/bin/ffmpeg')) {
     ffmpeg.setFfmpegPath('/opt/homebrew/bin/ffmpeg');
 }
+// En Linux (GitHub Actions), ffmpeg está en el PATH por defecto tras apt-get install
 
 /**
  * Servicio Avanzado de YouTube v4 - Con Thumbnails, Tags IA y Descripción Inspiracional
