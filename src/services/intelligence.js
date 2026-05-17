@@ -40,7 +40,6 @@ class IntelligenceService {
                 console.log("ℹ️ Detectado Refresh Token directo en YOUTUBE_TOKEN_JSON. Reconstruyendo objeto...");
                 token = {
                     refresh_token: rawToken,
-                    scope: "https://www.googleapis.com/auth/youtube.force-ssl",
                     token_type: "Bearer"
                 };
             }
